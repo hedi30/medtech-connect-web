@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;600&display=swap');
+
+:root {
+    --primary-color: #3981A5;
+    --secondary-color: #005f87;
+    --accent-color: #00A8E8;
+    --text-color: white;
+    --background-color: #001F3F;
+    --input-bg: rgba(255, 255, 255, 0.2);
+    --input-text: white;
+    --input-border: rgba(255, 255, 255, 0.5);
+    --input-placeholder: rgba(255, 255, 255, 0.7);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #000000;
+        --text-color: #ffffff;
+    }
+}
+
+body {
+    font-family: 'Orbitron', sans-serif;
+    background: radial-gradient(circle, var(--background-color), var(--primary-color), var(--secondary-color));
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Grid Layout for Containers */
+.container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* 3D Floating Card Effect */
+.card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0px 10px 30px rgba(57, 129, 165, 0.3);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease-in-out;
+    text-align: center;
+    cursor: pointer;
+    animation: fadeIn 2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0px 15px 40px rgba(57, 129, 165, 0.5);
+}
+
+/* Sleek Silicon Valley-Inspired Navbar */
+.AdminNavbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 30px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    border-radius: 12px;
+    box-shadow: 0px 5px 20px rgba(0, 168, 232, 0.3);
+}
+
+.AdminNavbar a {
+    color: var(--text-color);
+    font-weight: 700;
+    text-decoration: none;
+    margin: 0 15px;
+    transition: 0.3s ease-in-out;
+    position: relative;
+}
+
+.AdminNavbar a::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 2px;
+    background: var(--accent-color);
+    transition: width .3s;
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+}
+
+.AdminNavbar a:hover::after {
+    width: 100%;
+}
+
+/* Cyberpunk Button */
+.btn {
+    font-size: 18px;
+    font-weight: bold;
+    padding: 12px 24px;
+    color: var(--text-color);
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    border: 2px solid var(--text-color);
+    border-radius: 50px;
+    transition: all 0.3s;
+    box-shadow: 0px 4px 10px rgba(0, 168, 232, 0.4);
+    cursor: pointer;
+    animation: fadeIn 1.5s ease-in-out;
+}
+
+.btn:hover {
+    background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+    transform: scale(1.05);
+    box-shadow: 0px 6px 20px rgba(0, 168, 232, 0.6);
+}
+
+/* Global Search Bar Styling */
+.search-bar {
+    background: var(--input-bg);
+    color: var(--input-text);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 16px;
+    outline: none;
+    width: 100%;
+    transition: all 0.3s ease-in-out;
+}
+
+.search-bar::placeholder {
+    color: var(--input-placeholder);
+    font-style: italic;
+}
+
+.search-bar:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0px 0px 12px rgba(0, 168, 232, 0.7);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Neon Glowing Text Effect */
+.neon-text {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--accent-color);
+    text-shadow: 0 0 5px var(--accent-color), 0 0 10px var(--accent-color), 0 0 15px var(--accent-color), 0 0 20px #FFCC00;
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .AdminNavbar {
+        flex-direction: column;
+    }
+}

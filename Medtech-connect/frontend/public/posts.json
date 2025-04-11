@@ -1,0 +1,49 @@
+[
+    {
+      "id": 1,
+      "user": "Alice",
+      "isAlumni": true,
+      "status": "Pending",
+      "likes": 15,
+      "creationDate": "2025-04-10T14:30:00Z",
+      "content": "Excited to share my new research paper on AI ethics!",
+      "comments": [
+        {
+          "id": 101,
+          "user": "John",
+          "text": "This sounds interesting!",
+          "status": "Pending"
+        },
+        {
+          "id": 102,
+          "user": "Emma",
+          "text": "I disagree with some of your points.",
+          "status": "Pending"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "user": "Bob",
+      "isAlumni": false,
+      "status": "Flagged",
+      "likes": 8,
+      "creationDate": "2025-04-09T09:15:00Z",
+      "content": "Join us for the upcoming hackathon next week!",
+      "comments": [
+        {
+          "id": 103,
+          "user": "Liam",
+          "text": "Looking forward to it!",
+          "status": "Pending"
+        },
+        {
+          "id": 104,
+          "user": "Sophia",
+          "text": "Where can I register?",
+          "status": "Pending"
+        }
+      ]
+    }
+  ]
+  
