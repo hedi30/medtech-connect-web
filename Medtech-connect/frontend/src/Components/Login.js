@@ -24,7 +24,6 @@ const Login = () => {
     axios
       .post("http://209.38.178.0/api/auth/admin/login", user)
       .then((response) => {
-        console.log(response.data);
         const token = response.data.token;
         localStorage.setItem("token", token);
   
