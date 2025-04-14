@@ -22,7 +22,9 @@ const Login = () => {
     e.preventDefault();
   
     axios
-      .post("http://209.38.178.0/api/auth/admin/login", user)
+      .post("http://209.38.178.0/api/auth/admin/login", user, {
+        withCredentials: true, // ✅ Include cookies in request
+      })
       .then((response) => {
         const token = response.data.token;
         localStorage.setItem("token", token);
@@ -35,6 +37,7 @@ const Login = () => {
         alert(errorMsg); // ✅ Display error message in an alert
       });
   };
+  
   
   return (
     <div className="login_wrapper">

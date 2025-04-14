@@ -16,30 +16,22 @@ const ManagePostsPage = () => {
   const [expandedPost, setExpandedPost] = useState(null);
 
   useEffect(() => {
-    // DEVELOPMENT: Fetch from local JSON
     axios
-      .get("/posts.json")
+      .get("http://209.38.178.0/api/services/all-posts", {
+        withCredentials: true, // ✅ Send cookies with request
+      })
       .then((res) => {
+        console.log("✅ Posts fetched from API:", res.data); // 🔍 Debug output
         setPosts(res.data);
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Failed to load posts:", err);
+        console.error("❌ Failed to load posts:", err); // 🔍 Error output
         setLoading(false);
       });
-
-    // PRODUCTION BACKEND (uncomment when ready)
-    // axios.get("https://your-backend-api.com/api/posts")
-    //   .then((res) => {
-    //     setPosts(res.data);
-    //     setLoading(false);
-    //   })
-    //   .catch((err) => {
-    //     console.error("Error loading from backend:", err);
-    //     setLoading(false);
-    //   });
   }, []);
-
+  
+  
   const formatDate = (isoString) =>
     new Date(isoString).toLocaleString(undefined, {
       dateStyle: "medium",

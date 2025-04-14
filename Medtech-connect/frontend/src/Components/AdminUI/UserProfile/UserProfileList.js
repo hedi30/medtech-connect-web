@@ -55,10 +55,15 @@ const UserProfileList = () => {
   const [rows, setRows] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false); // ✅ Snackbar state
 
-  // Fetch users from API
   useEffect(() => {
+    const token = localStorage.getItem("token");
+  
     axios
-      .get("http://209.38.178.0/api/user/get-users")
+      .get("http://209.38.178.0/api/user/get-users", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
         const users = Array.isArray(response.data.data) ? response.data.data : [];
         setRows(users);
@@ -68,6 +73,7 @@ const UserProfileList = () => {
         setRows([]);
       });
   }, []);
+  
 
   // Filtered rows for search
   const filteredRows = Array.isArray(rows)
@@ -96,11 +102,27 @@ const UserProfileList = () => {
     setSnackbarOpen(false);
   };
 
-  // ✅ DELETE user with body request + snackbar on success
   const handleConfirmDelete = () => {
-    setRows((prevRows) => prevRows.filter((row) => row.id !== selectedId));
-    handleClose();
+    const token = localStorage.getItem("token");
+  
+    axios
+      .delete("http://209.38.178.0/api/user/delete-user-admin/", {
+        data: { userId: selectedId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setRows((prevRows) => prevRows.filter((row) => row.id !== selectedId));
+        setSnackbarOpen(true); // ✅ Trigger snackbar
+        handleClose();
+      })
+      .catch((error) => {
+        console.error("❌ Error deleting user:", error);
+        handleClose();
+      });
   };
+  
 
   const columns = [
     { field: "email", headerName: "Email", width: 250 },

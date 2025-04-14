@@ -33,7 +33,6 @@ function App() {
 
           <Route path="posts" element={<ManagePostsPage />} />
 
-          {/* ✅ Suspicious Posts Route */}
           <Route path="suspiciousposts" element={<ManageSuspiciousPostsPage />} />
         </Route>
       </Routes>
