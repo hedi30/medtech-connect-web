@@ -3,43 +3,75 @@ import axios from "axios";
 import {
   FaRegComment,
   FaUser,
-  FaStar,
   FaCheckCircle,
   FaExclamationTriangle,
   FaTrash,
   FaThumbsUp,
 } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManagePostsPage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedPost, setExpandedPost] = useState(null);
+  const [commentsLoading, setCommentsLoading] = useState(null); // holds postId being loaded
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+
     axios
-      .get("http://209.38.178.0/api/services/all-posts", {
-        withCredentials: true, // ✅ Send cookies with request
+      .get("http://209.38.178.0/api/services/all-posts-web", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
       .then((res) => {
-        console.log("✅ Posts fetched from API:", res.data); // 🔍 Debug output
-        setPosts(res.data);
+        console.log("✅ Posts fetched from API:", res.data);
+        setPosts(res.data.posts);
         setLoading(false);
       })
       .catch((err) => {
-        console.error("❌ Failed to load posts:", err); // 🔍 Error output
+        console.error("❌ Failed to load posts:", err);
         setLoading(false);
       });
   }, []);
-  
-  
+
   const formatDate = (isoString) =>
     new Date(isoString).toLocaleString(undefined, {
       dateStyle: "medium",
       timeStyle: "short",
     });
 
-  const toggleComments = (postId) => {
-    setExpandedPost(expandedPost === postId ? null : postId);
+  const toggleComments = async (postId) => {
+    if (expandedPost === postId) {
+      setExpandedPost(null);
+      return;
+    }
+
+    setExpandedPost(postId);
+    setCommentsLoading(postId);
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("http://209.38.178.0/api/services/get-postComment", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: { postId },
+      });
+
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId ? { ...post, comments: res.data.comment || [] } : post
+        )
+      );
+    } catch (err) {
+      toast.error("Failed to load comments.");
+      console.error("❌ Failed to fetch comments:", err);
+    } finally {
+      setCommentsLoading(null);
+    }
   };
 
   const updatePostStatus = (postId, newStatus) => {
@@ -48,11 +80,13 @@ const ManagePostsPage = () => {
         post.id === postId ? { ...post, status: newStatus } : post
       )
     );
+    toast.success(`Post marked as ${newStatus}`);
   };
 
   const deletePost = (postId) => {
     if (window.confirm("Are you sure you want to delete this post?")) {
       setPosts(posts.filter((post) => post.id !== postId));
+      toast.success("Post deleted.");
     }
   };
 
@@ -71,6 +105,7 @@ const ManagePostsPage = () => {
           : post
       )
     );
+    toast.success("Comment approved.");
   };
 
   const deleteComment = (postId, commentId) => {
@@ -87,6 +122,7 @@ const ManagePostsPage = () => {
             : post
         )
       );
+      toast.success("Comment deleted.");
     }
   };
 
@@ -94,6 +130,8 @@ const ManagePostsPage = () => {
 
   return (
     <div className="bg-gray-900 text-white p-6 min-h-screen">
+      <ToastContainer position="bottom-right" autoClose={2500} />
+
       <h1 className="text-3xl font-bold text-indigo-400">
         🛠 Manage Posts & Comments
       </h1>
@@ -108,39 +146,27 @@ const ManagePostsPage = () => {
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                 <div className="flex items-center gap-2">
                   <FaUser className="text-white text-xl" />
-                  <h2 className="text-lg font-semibold">{post.user}</h2>
-                  {post.isAlumni && (
-                    <FaStar className="text-yellow-500" title="Alumni" />
-                  )}
+                  <h2 className="text-lg font-semibold">
+                    {post.user?.name || "Unknown"}
+                  </h2>
                 </div>
                 <span className="text-sm text-gray-400 sm:ml-2">
-                  • {post.creationDate ? formatDate(post.creationDate) : "Unknown date"}
+                  • {post.createdAt ? formatDate(post.createdAt) : "Unknown date"}
                 </span>
               </div>
-              <span
-                className={`px-3 py-1 rounded-full text-sm font-bold ${
-                  post.status === "Approved"
-                    ? "bg-green-500 text-white"
-                    : post.status === "Flagged"
-                    ? "bg-red-500 text-white"
-                    : "bg-yellow-500 text-white"
-                }`}
-              >
-                {post.status}
-              </span>
             </div>
 
-            <p className="mt-2 text-gray-300">{post.content}</p>
+            <p className="mt-2 text-gray-300">{post.postText}</p>
 
             <div className="mt-3 flex items-center gap-4 text-gray-400">
               <div className="flex items-center gap-2">
-                <FaThumbsUp /> <span>{post.likes}</span>
+                <FaThumbsUp /> <span>{post._count?.like || 0}</span>
               </div>
               <div
                 className="flex items-center gap-2 cursor-pointer hover:text-indigo-400 transition"
                 onClick={() => toggleComments(post.id)}
               >
-                <FaRegComment /> <span>{post.comments.length}</span>
+                <FaRegComment /> <span>{post._count?.comments || 0}</span>
               </div>
             </div>
 
@@ -168,39 +194,57 @@ const ManagePostsPage = () => {
             {expandedPost === post.id && (
               <div className="mt-4 border-t border-gray-700 pt-3">
                 <h5 className="font-medium text-white">Comments</h5>
-                <ul className="mt-2 space-y-2">
-                  {post.comments.map((comment) => (
-                    <li
-                      key={comment.id}
-                      className={`flex justify-between items-center text-sm text-slate-400 p-3 rounded ${
-                        comment.status === "Approved"
-                          ? "bg-green-700 text-white"
-                          : "bg-gray-700"
-                      }`}
-                    >
-                      <span>
-                        <strong className="text-white">{comment.user}:</strong>{" "}
-                        {comment.text}
-                      </span>
-                      <div className="flex gap-2">
-                        {comment.status !== "Approved" && (
-                          <button
-                            className="text-green-400 hover:text-green-500 cursor-pointer flex items-center gap-1"
-                            onClick={() =>
-                              updateCommentStatus(post.id, comment.id)
-                            }
-                          >
-                            <FaCheckCircle />
-                          </button>
-                        )}
-                        <FaTrash
-                          className="text-red-400 hover:text-red-500 cursor-pointer"
-                          onClick={() => deleteComment(post.id, comment.id)}
-                        />
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+
+                {commentsLoading === post.id ? (
+                  <p className="text-gray-400 mt-3 text-sm">Loading comments...</p>
+                ) : post.comments?.length > 0 ? (
+                  <ul className="mt-2 space-y-2">
+                    {post.comments.map((comment) => (
+                      <li
+                        key={comment.id}
+                        className={`flex justify-between items-center text-sm p-3 rounded ${
+                          comment.status === "Approved"
+                            ? "bg-green-700 text-white"
+                            : "bg-gray-700 text-slate-400"
+                        }`}
+                      >
+                        <div>
+                          <strong className="text-white">
+                            {comment.User?.name || "Unknown"}:
+                          </strong>{" "}
+                          {comment.comment}
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-gray-300">
+                            {comment.createdAt
+                              ? new Date(comment.createdAt).toLocaleString(undefined, {
+                                  dateStyle: "short",
+                                  timeStyle: "short",
+                                })
+                              : "N/A"}
+                          </span>
+                          {comment.status !== "Approved" && (
+                            <button
+                              className="text-green-400 hover:text-green-500 cursor-pointer flex items-center gap-1"
+                              onClick={() =>
+                                updateCommentStatus(post.id, comment.id)
+                              }
+                            >
+                              <FaCheckCircle />
+                            </button>
+                          )}
+                          <FaTrash
+                            className="text-red-400 hover:text-red-500 cursor-pointer"
+                            onClick={() => deleteComment(post.id, comment.id)}
+                          />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-gray-400">No comments available.</p>
+                )}
               </div>
             )}
           </div>
