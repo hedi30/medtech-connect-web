@@ -53,11 +53,11 @@ const UserProfileList = () => {
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [rows, setRows] = useState([]);
-  const [snackbarOpen, setSnackbarOpen] = useState(false); // ✅ Snackbar state
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-  
+
     axios
       .get("http://209.38.178.0/api/user/get-users", {
         headers: {
@@ -73,9 +73,7 @@ const UserProfileList = () => {
         setRows([]);
       });
   }, []);
-  
 
-  // Filtered rows for search
   const filteredRows = Array.isArray(rows)
     ? rows.filter((row) =>
         `${row.email} ${row.isAlum} ${row.year} ${row.major} ${row.group}`
@@ -104,7 +102,7 @@ const UserProfileList = () => {
 
   const handleConfirmDelete = () => {
     const token = localStorage.getItem("token");
-  
+
     axios
       .delete("http://209.38.178.0/api/user/delete-user-admin/", {
         data: { userId: selectedId },
@@ -114,7 +112,7 @@ const UserProfileList = () => {
       })
       .then((response) => {
         setRows((prevRows) => prevRows.filter((row) => row.id !== selectedId));
-        setSnackbarOpen(true); // ✅ Trigger snackbar
+        setSnackbarOpen(true);
         handleClose();
       })
       .catch((error) => {
@@ -122,7 +120,6 @@ const UserProfileList = () => {
         handleClose();
       });
   };
-  
 
   const columns = [
     { field: "email", headerName: "Email", width: 250 },
@@ -232,6 +229,11 @@ const UserProfileList = () => {
           pageSizeOptions={[5, 10]}
           getRowId={(row) => row.id}
           onRowClick={handleRowClick}
+          sx={{
+            "& .MuiDataGrid-row": {
+              cursor: "pointer", // ✅ Add pointer cursor to rows
+            },
+          }}
         />
       </Paper>
 
@@ -251,7 +253,7 @@ const UserProfileList = () => {
         </DialogActions>
       </Dialog>
 
-      {/* ✅ Snackbar for delete success */}
+      {/* Snackbar for delete success */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}

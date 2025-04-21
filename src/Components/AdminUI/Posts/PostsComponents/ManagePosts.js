@@ -3,19 +3,16 @@ import axios from "axios";
 import {
   FaRegComment,
   FaUser,
-  FaCheckCircle,
-  FaExclamationTriangle,
   FaTrash,
   FaThumbsUp,
+  FaCheckCircle,
 } from "react-icons/fa";
-import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
 
 const ManagePostsPage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedPost, setExpandedPost] = useState(null);
-  const [commentsLoading, setCommentsLoading] = useState(null); // holds postId being loaded
+  const [commentsLoading, setCommentsLoading] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -27,7 +24,6 @@ const ManagePostsPage = () => {
         },
       })
       .then((res) => {
-        console.log("✅ Posts fetched from API:", res.data);
         setPosts(res.data.posts);
         setLoading(false);
       })
@@ -61,32 +57,37 @@ const ManagePostsPage = () => {
         params: { postId },
       });
 
+      const comments = res.data.comment || [];
+
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
-          post.id === postId ? { ...post, comments: res.data.comment || [] } : post
+          post.id === postId ? { ...post, comments } : post
         )
       );
     } catch (err) {
-      toast.error("Failed to load comments.");
       console.error("❌ Failed to fetch comments:", err);
     } finally {
       setCommentsLoading(null);
     }
   };
 
-  const updatePostStatus = (postId, newStatus) => {
-    setPosts(
-      posts.map((post) =>
-        post.id === postId ? { ...post, status: newStatus } : post
-      )
-    );
-    toast.success(`Post marked as ${newStatus}`);
-  };
-
   const deletePost = (postId) => {
     if (window.confirm("Are you sure you want to delete this post?")) {
-      setPosts(posts.filter((post) => post.id !== postId));
-      toast.success("Post deleted.");
+      const token = localStorage.getItem("token");
+
+      axios
+        .delete("http://209.38.178.0/api/services/delete-post-web", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          data: { postId },
+        })
+        .then(() => {
+          setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+        })
+        .catch((err) => {
+          console.error("❌ Failed to delete post:", err);
+        });
     }
   };
 
@@ -105,7 +106,6 @@ const ManagePostsPage = () => {
           : post
       )
     );
-    toast.success("Comment approved.");
   };
 
   const deleteComment = (postId, commentId) => {
@@ -122,7 +122,6 @@ const ManagePostsPage = () => {
             : post
         )
       );
-      toast.success("Comment deleted.");
     }
   };
 
@@ -130,8 +129,6 @@ const ManagePostsPage = () => {
 
   return (
     <div className="bg-gray-900 text-white p-6 min-h-screen">
-      <ToastContainer position="bottom-right" autoClose={2500} />
-
       <h1 className="text-3xl font-bold text-indigo-400">
         🛠 Manage Posts & Comments
       </h1>
@@ -166,23 +163,12 @@ const ManagePostsPage = () => {
                 className="flex items-center gap-2 cursor-pointer hover:text-indigo-400 transition"
                 onClick={() => toggleComments(post.id)}
               >
-                <FaRegComment /> <span>{post._count?.comments || 0}</span>
+                <FaRegComment />
+                <span>{post._count?.comments || 0}</span>
               </div>
             </div>
 
             <div className="mt-3 flex justify-end gap-3">
-              <button
-                onClick={() => updatePostStatus(post.id, "Approved")}
-                className="px-3 py-1 bg-green-500 rounded hover:bg-green-600 transition flex items-center gap-1"
-              >
-                <FaCheckCircle /> Approve
-              </button>
-              <button
-                onClick={() => updatePostStatus(post.id, "Flagged")}
-                className="px-3 py-1 bg-red-500 rounded hover:bg-red-600 transition flex items-center gap-1"
-              >
-                <FaExclamationTriangle /> Flag
-              </button>
               <button
                 onClick={() => deletePost(post.id)}
                 className="px-3 py-1 bg-gray-600 rounded hover:bg-gray-700 transition flex items-center gap-1"
@@ -197,7 +183,7 @@ const ManagePostsPage = () => {
 
                 {commentsLoading === post.id ? (
                   <p className="text-gray-400 mt-3 text-sm">Loading comments...</p>
-                ) : post.comments?.length > 0 ? (
+                ) : post.comments && post.comments.length > 0 ? (
                   <ul className="mt-2 space-y-2">
                     {post.comments.map((comment) => (
                       <li
@@ -243,7 +229,7 @@ const ManagePostsPage = () => {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-sm text-gray-400">No comments available.</p>
+                  <p className="text-sm text-gray-400 mt-2">No comments available.</p>
                 )}
               </div>
             )}
