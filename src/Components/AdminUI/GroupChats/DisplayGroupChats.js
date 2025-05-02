@@ -1,6 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Paper, Button, IconButton, InputBase, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide } from "@mui/material";
+import {
+  Box,
+  Paper,
+  Button,
+  IconButton,
+  InputBase,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Slide,
+} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { styled, alpha } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
@@ -60,7 +72,9 @@ const DisplayGroupChats = ({ groupChats, onDelete }) => {
   };
 
   return (
-    <Box>
+    <Box
+      sx={{ backgroundColor: "#f5f5f5", padding: "20px", borderRadius: "10px" }}
+    >
       {/* Search Bar */}
       <Box sx={{ my: 2, display: "flex", justifyContent: "center" }}>
         <Search>
@@ -75,7 +89,14 @@ const DisplayGroupChats = ({ groupChats, onDelete }) => {
       </Box>
 
       {/* Table */}
-      <Paper sx={{ height: 400, width: "100%" }}>
+      <Paper
+        sx={{
+          height: 400,
+          width: "100%",
+          backgroundColor: "#ffffff",
+          borderRadius: "10px",
+        }}
+      >
         <DataGrid
           rows={filteredRows}
           columns={[
@@ -95,22 +116,22 @@ const DisplayGroupChats = ({ groupChats, onDelete }) => {
               width: 120,
               renderCell: (params) => (
                 <Box display="flex" gap={1} className="action-buttons">
-                  <IconButton 
+                  <IconButton
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent row click event
                       navigate(`/admin/chats/edit/${params.row.id}`);
                     }}
                   >
-                    <EditRoundedIcon style={{ color: "blue" }} />
+                    <EditRoundedIcon style={{ color: "#3881a5" }} />
                   </IconButton>
 
-                  <IconButton 
+                  <IconButton
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent row click event
                       handleClickOpen(params.row.id);
                     }}
                   >
-                    <DeleteRoundedIcon style={{ color: "black" }} />
+                    <DeleteRoundedIcon style={{ color: "#3881a5" }} />
                   </IconButton>
                 </Box>
               ),
@@ -129,20 +150,33 @@ const DisplayGroupChats = ({ groupChats, onDelete }) => {
           color="primary"
           startIcon={<AddIcon />}
           onClick={() => navigate("/admin/chats/create")}
+          sx={{
+            backgroundColor: "#3881a5",
+            "&:hover": { backgroundColor: "#56A9D1" },
+          }}
         >
           Add Group
         </Button>
       </Box>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={open} TransitionComponent={Slide} keepMounted onClose={handleClose}>
+      <Dialog
+        open={open}
+        TransitionComponent={Slide}
+        keepMounted
+        onClose={handleClose}
+      >
         <DialogTitle>{"Are you sure you want to delete?"}</DialogTitle>
         <DialogContent>
           <DialogContentText>This action cannot be undone.</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="secondary">Cancel</Button>
-          <Button onClick={handleConfirmDelete} color="primary">Confirm</Button>
+          <Button onClick={handleClose} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDelete} color="primary">
+            Confirm
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

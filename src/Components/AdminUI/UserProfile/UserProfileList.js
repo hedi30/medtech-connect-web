@@ -57,7 +57,7 @@ const UserProfileList = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-  
+
     axios
       .get("http://209.38.178.0/api/user/get-users", {
         headers: {
@@ -65,7 +65,9 @@ const UserProfileList = () => {
         },
       })
       .then((response) => {
-        const users = Array.isArray(response.data.data) ? response.data.data : [];
+        const users = Array.isArray(response.data.data)
+          ? response.data.data
+          : [];
         setRows(users);
       })
       .catch((error) => {
@@ -73,7 +75,6 @@ const UserProfileList = () => {
         setRows([]);
       });
   }, []);
-  
 
   // Filtered rows for search
   const filteredRows = Array.isArray(rows)
@@ -104,7 +105,7 @@ const UserProfileList = () => {
 
   const handleConfirmDelete = () => {
     const token = localStorage.getItem("token");
-  
+
     axios
       .delete("http://209.38.178.0/api/user/delete-user-admin/", {
         data: { userId: selectedId },
@@ -122,7 +123,6 @@ const UserProfileList = () => {
         handleClose();
       });
   };
-  
 
   const columns = [
     { field: "email", headerName: "Email", width: 250 },
@@ -200,7 +200,7 @@ const UserProfileList = () => {
               handleClickOpen(params.row.id);
             }}
           >
-            <DeleteRoundedIcon style={{ color: "black" }} />
+            <DeleteRoundedIcon style={{ color: "#3881a5" }} />
           </IconButton>
         </Box>
       ),
@@ -258,7 +258,11 @@ const UserProfileList = () => {
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: "100%" }}>
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
           User deleted successfully!
         </Alert>
       </Snackbar>

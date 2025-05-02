@@ -19,7 +19,9 @@ const ManageSuspiciousPosts = () => {
       .get("/posts.json")
       .then((res) => {
         // Load all posts that were flagged initially
-        const onlyFlagged = res.data.filter((post) => post.status === "Flagged");
+        const onlyFlagged = res.data.filter(
+          (post) => post.status === "Flagged"
+        );
         setPosts(onlyFlagged);
         setLoading(false);
       })
@@ -87,11 +89,12 @@ const ManageSuspiciousPosts = () => {
     }
   };
 
-  if (loading) return <div className="text-white p-6">Loading suspicious posts...</div>;
+  if (loading)
+    return <div className="text-black p-6">Loading suspicious posts...</div>;
 
   return (
-    <div className="bg-gray-900 text-white p-6 min-h-screen">
-      <h1 className="text-3xl font-bold text-red-400">
+    <div className="bg-white text-black p-6 min-h-screen">
+      <h1 className="text-3xl font-bold text-[#3881a5]">
         🚨 Suspicious Posts Management
       </h1>
 
@@ -102,19 +105,22 @@ const ManageSuspiciousPosts = () => {
           {posts.map((post) => (
             <div
               key={post.id}
-              className="p-6 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-all"
+              className="p-6 bg-gray-100 rounded-lg shadow-lg hover:shadow-xl transition-all"
             >
               <div className="flex justify-between items-center">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                   <div className="flex items-center gap-2">
-                    <FaUser className="text-white text-xl" />
+                    <FaUser className="text-[#3881a5] text-xl" />
                     <h2 className="text-lg font-semibold">{post.user}</h2>
                     {post.isAlumni && (
                       <FaStar className="text-yellow-500" title="Alumni" />
                     )}
                   </div>
                   <span className="text-sm text-gray-400 sm:ml-2">
-                    • {post.creationDate ? formatDate(post.creationDate) : "Unknown date"}
+                    •{" "}
+                    {post.creationDate
+                      ? formatDate(post.creationDate)
+                      : "Unknown date"}
                   </span>
                 </div>
 
@@ -125,17 +131,19 @@ const ManageSuspiciousPosts = () => {
                 )}
               </div>
 
-              <p className="mt-2 text-gray-300">{post.content}</p>
+              <p className="mt-2 text-gray-900">{post.content}</p>
 
-              <div className="mt-3 flex items-center gap-4 text-gray-400">
+              <div className="mt-3 flex items-center gap-4 text-gray-600">
                 <div className="flex items-center gap-2">
-                  <FaThumbsUp /> <span>{post.likes}</span>
+                  <FaThumbsUp className="text-[#3881a5]" />{" "}
+                  <span>{post.likes}</span>
                 </div>
                 <div
                   className="flex items-center gap-2 cursor-pointer hover:text-red-400 transition"
                   onClick={() => toggleComments(post.id)}
                 >
-                  <FaRegComment /> <span>{post.comments.length}</span>
+                  <FaRegComment className="text-[#3881a5]" />{" "}
+                  <span>{post.comments.length}</span>
                 </div>
               </div>
 
@@ -157,8 +165,8 @@ const ManageSuspiciousPosts = () => {
               </div>
 
               {expandedPost === post.id && (
-                <div className="mt-4 border-t border-gray-700 pt-3">
-                  <h5 className="font-medium text-white">Comments</h5>
+                <div className="mt-4 border-t border-gray-300 pt-3">
+                  <h5 className="font-medium text-black">Comments</h5>
                   <ul className="mt-2 space-y-2">
                     {post.comments.map((comment) => (
                       <li
@@ -166,11 +174,13 @@ const ManageSuspiciousPosts = () => {
                         className={`flex justify-between items-center text-sm text-slate-400 p-3 rounded ${
                           comment.status === "Approved"
                             ? "bg-green-700 text-white"
-                            : "bg-gray-700"
+                            : "bg-gray-200"
                         }`}
                       >
                         <span>
-                          <strong className="text-white">{comment.user}:</strong>{" "}
+                          <strong className="text-black">
+                            {comment.user}:
+                          </strong>{" "}
                           {comment.text}
                         </span>
                         <div className="flex gap-2">

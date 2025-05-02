@@ -9,7 +9,7 @@ import {
   FaThumbsUp,
 } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 const ManagePostsPage = () => {
   const [posts, setPosts] = useState([]);
@@ -54,16 +54,21 @@ const ManagePostsPage = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://209.38.178.0/api/services/get-postComment", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: { postId },
-      });
+      const res = await axios.get(
+        "http://209.38.178.0/api/services/get-postComment",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: { postId },
+        }
+      );
 
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
-          post.id === postId ? { ...post, comments: res.data.comment || [] } : post
+          post.id === postId
+            ? { ...post, comments: res.data.comment || [] }
+            : post
         )
       );
     } catch (err) {
@@ -129,10 +134,11 @@ const ManagePostsPage = () => {
   if (loading) return <div className="text-white p-6">Loading posts...</div>;
 
   return (
-    <div className="bg-gray-900 text-white p-6 min-h-screen">
+    <div className="bg-white text-black p-6 min-h-screen">
       <ToastContainer position="bottom-right" autoClose={2500} />
 
-      <h1 className="text-3xl font-bold text-indigo-400">
+      <h1 className="text-3xl font-bold text-[#3881a5]">
+        {" "}
         🛠 Manage Posts & Comments
       </h1>
 
@@ -140,36 +146,35 @@ const ManagePostsPage = () => {
         {posts.map((post) => (
           <div
             key={post.id}
-            className="p-6 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-all"
+            className="p-6 bg-gray-100 rounded-lg shadow-lg hover:shadow-xl transition-all"
           >
             <div className="flex justify-between items-center">
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                 <div className="flex items-center gap-2">
-                  <FaUser className="text-white text-xl" />
+                  <FaUser className="text-[#3881a5] text-xl" />
                   <h2 className="text-lg font-semibold">
                     {post.user?.name || "Unknown"}
                   </h2>
                 </div>
                 <span className="text-sm text-gray-400 sm:ml-2">
-                  • {post.createdAt ? formatDate(post.createdAt) : "Unknown date"}
+                  •{" "}
+                  {post.createdAt ? formatDate(post.createdAt) : "Unknown date"}
                 </span>
               </div>
             </div>
-
-            <p className="mt-2 text-gray-300">{post.postText}</p>
-
+            <p className="mt-2 text-gray-900">{post.postText}</p>{" "}
+            {/* Darker text here */}
             <div className="mt-3 flex items-center gap-4 text-gray-400">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 text-[#3881a5]">
                 <FaThumbsUp /> <span>{post._count?.like || 0}</span>
               </div>
               <div
-                className="flex items-center gap-2 cursor-pointer hover:text-indigo-400 transition"
+                className="flex items-center gap-2 cursor-pointer text-[#3881a5] hover:text-indigo-400 transition"
                 onClick={() => toggleComments(post.id)}
               >
                 <FaRegComment /> <span>{post._count?.comments || 0}</span>
               </div>
             </div>
-
             <div className="mt-3 flex justify-end gap-3">
               <button
                 onClick={() => updatePostStatus(post.id, "Approved")}
@@ -190,13 +195,14 @@ const ManagePostsPage = () => {
                 <FaTrash /> Remove
               </button>
             </div>
-
             {expandedPost === post.id && (
               <div className="mt-4 border-t border-gray-700 pt-3">
                 <h5 className="font-medium text-white">Comments</h5>
 
                 {commentsLoading === post.id ? (
-                  <p className="text-gray-400 mt-3 text-sm">Loading comments...</p>
+                  <p className="text-gray-400 mt-3 text-sm">
+                    Loading comments...
+                  </p>
                 ) : post.comments?.length > 0 ? (
                   <ul className="mt-2 space-y-2">
                     {post.comments.map((comment) => (
@@ -218,10 +224,13 @@ const ManagePostsPage = () => {
                         <div className="flex items-center gap-3">
                           <span className="text-xs text-gray-300">
                             {comment.createdAt
-                              ? new Date(comment.createdAt).toLocaleString(undefined, {
-                                  dateStyle: "short",
-                                  timeStyle: "short",
-                                })
+                              ? new Date(comment.createdAt).toLocaleString(
+                                  undefined,
+                                  {
+                                    dateStyle: "short",
+                                    timeStyle: "short",
+                                  }
+                                )
                               : "N/A"}
                           </span>
                           {comment.status !== "Approved" && (
@@ -243,7 +252,9 @@ const ManagePostsPage = () => {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-sm text-gray-400">No comments available.</p>
+                  <p className="text-sm text-gray-400">
+                    No comments available.
+                  </p>
                 )}
               </div>
             )}

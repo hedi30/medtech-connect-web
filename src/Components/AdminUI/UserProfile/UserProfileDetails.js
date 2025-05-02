@@ -57,8 +57,14 @@ const UserProfileDetails = () => {
   };
 
   return (
-    <div className="bg-gray-900 text-white p-6 min-h-screen">
-      <h1 className="text-3xl font-bold text-indigo-400">
+    <div
+      style={{
+        backgroundColor: "#f5f5f5",
+        padding: "20px",
+        minHeight: "100vh",
+      }}
+    >
+      <h1 style={{ color: "#3881a5", fontWeight: "bold" }}>
         🛠 Manage User Profile: Alice
       </h1>
 
@@ -67,24 +73,56 @@ const UserProfileDetails = () => {
         {posts.map((post) => (
           <div
             key={post.id}
-            className="p-6 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-all"
+            style={{
+              padding: "20px",
+              backgroundColor: "#ffffff",
+              borderRadius: "10px",
+              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+            }}
           >
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <FaUser className="text-white text-xl" />
-                <h2 className="text-lg font-semibold">{post.user}</h2>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <FaUser style={{ color: "#3881a5", fontSize: "24px" }} />
+                <h2 style={{ fontSize: "18px", fontWeight: "600" }}>
+                  {post.user}
+                </h2>
               </div>
             </div>
 
-            <p className="mt-2 text-gray-300">{post.content}</p>
+            <p style={{ marginTop: "12px", color: "#333" }}>{post.content}</p>
 
             {/* Like & Comment Count */}
-            <div className="mt-3 flex items-center gap-4 text-gray-400">
-              <div className="flex items-center gap-2">
-                <FaThumbsUp /> <span>{post.likes}</span>
+            <div
+              style={{
+                marginTop: "12px",
+                display: "flex",
+                alignItems: "center",
+                gap: "16px",
+                color: "#666",
+              }}
+            >
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <FaThumbsUp style={{ color: "#3881a5" }} />{" "}
+                <span>{post.likes}</span>{" "}
               </div>
               <div
-                className="flex items-center gap-2 cursor-pointer hover:text-indigo-400 transition"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  cursor: "pointer",
+                  color: "#3881a5",
+                }}
                 onClick={() => toggleComments(post.id)}
               >
                 <FaRegComment /> <span>{post.comments.length}</span>
@@ -92,10 +130,27 @@ const UserProfileDetails = () => {
             </div>
 
             {/* Delete Post */}
-            <div className="mt-3 flex justify-end gap-3">
+            <div
+              style={{
+                marginTop: "12px",
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "12px",
+              }}
+            >
               <button
                 onClick={() => deletePost(post.id)}
-                className="px-3 py-1 bg-gray-600 rounded hover:bg-gray-700 transition flex items-center gap-1"
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#f44336",
+                  color: "#fff",
+                  borderRadius: "4px",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}
               >
                 <FaTrash /> Remove Post
               </button>
@@ -103,21 +158,52 @@ const UserProfileDetails = () => {
 
             {/* Comments Section */}
             {expandedPost === post.id && (
-              <div className="mt-4 border-t border-gray-700 pt-3">
-                <h5 className="font-medium text-white">Comments</h5>
-                <ul className="mt-2 space-y-2">
+              <div
+                style={{
+                  marginTop: "16px",
+                  paddingTop: "12px",
+                  borderTop: "1px solid #ddd",
+                }}
+              >
+                <h5
+                  style={{
+                    fontSize: "16px",
+                    color: "#3881a5",
+                    fontWeight: "500",
+                  }}
+                >
+                  Comments
+                </h5>
+                <ul
+                  style={{
+                    marginTop: "12px",
+                    listStyleType: "none",
+                    paddingLeft: "0",
+                  }}
+                >
                   {post.comments.map((comment) => (
                     <li
                       key={comment.id}
-                      className="flex justify-between items-center text-sm text-slate-400 bg-gray-700 p-3 rounded"
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        fontSize: "14px",
+                        padding: "12px",
+                        borderRadius: "8px",
+                        backgroundColor: "#f0f0f0",
+                        marginBottom: "8px",
+                      }}
                     >
                       <span>
-                        <strong className="text-white">{comment.user}:</strong>{" "}
+                        <strong style={{ color: "#3881a5" }}>
+                          {comment.user}:
+                        </strong>{" "}
                         {comment.text}
                       </span>
-                      <div className="flex gap-2">
+                      <div style={{ display: "flex", gap: "8px" }}>
                         <FaTrash
-                          className="text-red-400 hover:text-red-500 cursor-pointer"
+                          style={{ color: "#f44336", cursor: "pointer" }}
                           onClick={() => deleteComment(post.id, comment.id)}
                         />
                       </div>

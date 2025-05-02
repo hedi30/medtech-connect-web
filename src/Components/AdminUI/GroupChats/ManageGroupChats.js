@@ -7,9 +7,30 @@ const ManageGroupChats = () => {
   const navigate = useNavigate();
 
   const [groupChats, setGroupChats] = useState([
-    { id: 1, name: "FreshmanG1", level: "Freshman", speciality: "Software", creationDate: "2024-03-01", term: "Spring" },
-    { id: 2, name: "SophG2", level: "Sophomore", speciality: "Renewable", creationDate: "2024-02-15", term: "Fall" },
-    { id: 3, name: "JuniorG5", level: "Junior", speciality: "Computer Systems", creationDate: "2024-01-20", term: "Spring" },
+    {
+      id: 1,
+      name: "FreshmanG1",
+      level: "Freshman",
+      speciality: "Software",
+      creationDate: "2024-03-01",
+      term: "Spring",
+    },
+    {
+      id: 2,
+      name: "SophG2",
+      level: "Sophomore",
+      speciality: "Renewable",
+      creationDate: "2024-02-15",
+      term: "Fall",
+    },
+    {
+      id: 3,
+      name: "JuniorG5",
+      level: "Junior",
+      speciality: "Computer Systems",
+      creationDate: "2024-01-20",
+      term: "Spring",
+    },
   ]);
 
   // Function to delete a group chat
@@ -20,14 +41,18 @@ const ManageGroupChats = () => {
   // Function to update an existing group chat
   const handleEdit = (updatedGroupChat) => {
     setGroupChats((prevChats) =>
-      prevChats.map((chat) => (chat.id === updatedGroupChat.id ? updatedGroupChat : chat))
+      prevChats.map((chat) =>
+        chat.id === updatedGroupChat.id ? updatedGroupChat : chat
+      )
     );
     navigate("/admin/chats"); // Redirect back after editing
   };
 
   return (
     <Box>
-      <Typography variant="h4">Group Chats Management</Typography>
+      <Typography variant="h4" sx={{ fontWeight: "bold", color: "#3881a5" }}>
+        Group Chats Management
+      </Typography>
       <Typography variant="body1" sx={{ marginTop: 2 }}>
         Here you can create, edit, delete, and monitor group chats.
       </Typography>
