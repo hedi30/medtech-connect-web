@@ -13,20 +13,22 @@ const ManageSuspiciousPosts = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedPost, setExpandedPost] = useState(null);
+  const [commentsLoading, setCommentsLoading] = useState(null);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+
     axios
-      .get("/posts.json")
+      .get("http://209.38.178.0/api/services/all-posts-web", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((res) => {
-        // Load all posts that were flagged initially
-        const onlyFlagged = res.data.filter(
-          (post) => post.status === "Flagged"
-        );
-        setPosts(onlyFlagged);
+        const flagged = res.data.posts.filter((post) => post.flagged === true);
+        setPosts(flagged);
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Failed to load suspicious posts:", err);
+        console.error("❌ Failed to load suspicious posts:", err);
         setLoading(false);
       });
   }, []);
@@ -37,39 +39,52 @@ const ManageSuspiciousPosts = () => {
       timeStyle: "short",
     });
 
-  const toggleComments = (postId) => {
-    setExpandedPost(expandedPost === postId ? null : postId);
+  const toggleComments = async (postId) => {
+    if (expandedPost === postId) {
+      setExpandedPost(null);
+      return;
+    }
+
+    setExpandedPost(postId);
+    setCommentsLoading(postId);
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(
+        "http://209.38.178.0/api/services/get-postComment",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { postId },
+        }
+      );
+
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? { ...post, comments: res.data.comment || [] }
+            : post
+        )
+      );
+    } catch (err) {
+      console.error("❌ Failed to fetch comments:", err);
+    } finally {
+      setCommentsLoading(null);
+    }
   };
 
-  const updatePostStatus = (postId, newStatus) => {
+  const approvePost = (postId) => {
     setPosts((prevPosts) =>
       prevPosts.map((post) =>
-        post.id === postId ? { ...post, status: newStatus } : post
+        post.id === postId ? { ...post, status: "Approved" } : post
       )
     );
   };
+  
 
   const deletePost = (postId) => {
     if (window.confirm("Are you sure you want to delete this post?")) {
       setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
     }
-  };
-
-  const updateCommentStatus = (postId, commentId) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              comments: post.comments.map((comment) =>
-                comment.id === commentId
-                  ? { ...comment, status: "Approved" }
-                  : comment
-              ),
-            }
-          : post
-      )
-    );
   };
 
   const deleteComment = (postId, commentId) => {
@@ -89,73 +104,53 @@ const ManageSuspiciousPosts = () => {
     }
   };
 
-  if (loading)
-    return <div className="text-black p-6">Loading suspicious posts...</div>;
+  if (loading) return <div className="text-black p-6">Loading suspicious posts...</div>;
 
   return (
     <div className="bg-white text-black p-6 min-h-screen">
-      <h1 className="text-3xl font-bold text-[#3881a5]">
-        🚨 Suspicious Posts Management
-      </h1>
+      <h1 className="text-3xl font-bold text-[#3881a5]">🚨 Suspicious Posts Management</h1>
 
       {posts.length === 0 ? (
         <p className="mt-4 text-gray-400">No suspicious posts at the moment.</p>
       ) : (
         <div className="space-y-6 mt-6">
           {posts.map((post) => (
-            <div
-              key={post.id}
-              className="p-6 bg-gray-100 rounded-lg shadow-lg hover:shadow-xl transition-all"
-            >
+            <div key={post.id} className="p-6 bg-gray-100 rounded-lg shadow-lg hover:shadow-xl transition-all">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                   <div className="flex items-center gap-2">
                     <FaUser className="text-[#3881a5] text-xl" />
-                    <h2 className="text-lg font-semibold">{post.user}</h2>
-                    {post.isAlumni && (
-                      <FaStar className="text-yellow-500" title="Alumni" />
-                    )}
+                    <h2 className="text-lg font-semibold">{post.user?.name || "Unknown"}</h2>
+                    {post.isAlumni && <FaStar className="text-yellow-500" title="Alumni" />}
                   </div>
                   <span className="text-sm text-gray-400 sm:ml-2">
-                    •{" "}
-                    {post.creationDate
-                      ? formatDate(post.creationDate)
-                      : "Unknown date"}
+                    • {post.createdAt ? formatDate(post.createdAt) : "Unknown date"}
                   </span>
                 </div>
-
-                {post.status === "Approved" && (
-                  <span className="px-3 py-1 rounded-full text-sm font-bold bg-green-500 text-white">
-                    Approved
-                  </span>
-                )}
               </div>
 
-              <p className="mt-2 text-gray-900">{post.content}</p>
+              <p className="mt-2 text-gray-900">{post.postText}</p>
 
               <div className="mt-3 flex items-center gap-4 text-gray-600">
                 <div className="flex items-center gap-2">
-                  <FaThumbsUp className="text-[#3881a5]" />{" "}
-                  <span>{post.likes}</span>
+                  <FaThumbsUp className="text-[#3881a5]" /> <span>{post._count?.like || 0}</span>
                 </div>
                 <div
                   className="flex items-center gap-2 cursor-pointer hover:text-red-400 transition"
                   onClick={() => toggleComments(post.id)}
                 >
                   <FaRegComment className="text-[#3881a5]" />{" "}
-                  <span>{post.comments.length}</span>
+                  <span>{post._count?.comments || 0}</span>
                 </div>
               </div>
 
               <div className="mt-3 flex justify-end gap-3">
-                {post.status !== "Approved" && (
-                  <button
-                    onClick={() => updatePostStatus(post.id, "Approved")}
-                    className="px-3 py-1 bg-green-500 rounded hover:bg-green-600 transition flex items-center gap-1"
-                  >
-                    <FaCheckCircle /> Approve
-                  </button>
-                )}
+                <button
+                  onClick={() => approvePost(post.id)}
+                  className="px-3 py-1 bg-green-500 rounded hover:bg-green-600 transition flex items-center gap-1"
+                >
+                  <FaCheckCircle /> Approve
+                </button>
                 <button
                   onClick={() => deletePost(post.id)}
                   className="px-3 py-1 bg-gray-600 rounded hover:bg-gray-700 transition flex items-center gap-1"
@@ -167,41 +162,35 @@ const ManageSuspiciousPosts = () => {
               {expandedPost === post.id && (
                 <div className="mt-4 border-t border-gray-300 pt-3">
                   <h5 className="font-medium text-black">Comments</h5>
-                  <ul className="mt-2 space-y-2">
-                    {post.comments.map((comment) => (
-                      <li
-                        key={comment.id}
-                        className={`flex justify-between items-center text-sm text-slate-400 p-3 rounded ${
-                          comment.status === "Approved"
-                            ? "bg-green-700 text-white"
-                            : "bg-gray-200"
-                        }`}
-                      >
-                        <span>
-                          <strong className="text-black">
-                            {comment.user}:
-                          </strong>{" "}
-                          {comment.text}
-                        </span>
-                        <div className="flex gap-2">
-                          {comment.status !== "Approved" && (
-                            <button
-                              className="text-green-400 hover:text-green-500 cursor-pointer flex items-center gap-1"
-                              onClick={() =>
-                                updateCommentStatus(post.id, comment.id)
-                              }
-                            >
-                              <FaCheckCircle />
-                            </button>
-                          )}
-                          <FaTrash
-                            className="text-red-400 hover:text-red-500 cursor-pointer"
-                            onClick={() => deleteComment(post.id, comment.id)}
-                          />
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                  {commentsLoading === post.id ? (
+                    <p className="text-sm text-gray-400">Loading comments...</p>
+                  ) : post.comments?.length > 0 ? (
+                    <ul className="mt-2 space-y-2">
+                      {post.comments.map((comment) => (
+                        <li
+                          key={comment.id}
+                          className={`flex justify-between items-center text-sm p-3 rounded ${
+                            comment.status === "Approved"
+                              ? "bg-green-700 text-white"
+                              : "bg-gray-200 text-black"
+                          }`}
+                        >
+                          <span>
+                            <strong>{comment.User?.name || "Unknown"}:</strong>{" "}
+                            {comment.comment}
+                          </span>
+                          <div className="flex gap-2">
+                            <FaTrash
+                              className="text-red-400 hover:text-red-500 cursor-pointer"
+                              onClick={() => deleteComment(post.id, comment.id)}
+                            />
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-gray-400">No comments available.</p>
+                  )}
                 </div>
               )}
             </div>

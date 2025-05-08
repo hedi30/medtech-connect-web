@@ -26,9 +26,11 @@ const ManagePostsPage = () => {
       })
       .then((res) => {
         console.log("✅ Posts fetched from API:", res.data);
-        setPosts(res.data.posts);
+        const unflaggedPosts = res.data.posts.filter((post) => post.flagged === false);
+        setPosts(unflaggedPosts);
         setLoading(false);
       })
+      
       .catch((err) => {
         console.error("❌ Failed to load posts:", err);
         setLoading(false);

@@ -7,30 +7,16 @@ const ManageGroupChats = () => {
   const navigate = useNavigate();
 
   const [groupChats, setGroupChats] = useState([
+    
     {
-      id: 1,
-      name: "FreshmanG1",
-      level: "Freshman",
-      speciality: "Software",
-      creationDate: "2024-03-01",
-      term: "Spring",
-    },
-    {
-      id: 2,
+      id:1,
       name: "SophG2",
       level: "Sophomore",
-      speciality: "Renewable",
-      creationDate: "2024-02-15",
+      speciality: "Computer Systems",
+      creationDate: "2025-05-8",
       term: "Fall",
     },
-    {
-      id: 3,
-      name: "JuniorG5",
-      level: "Junior",
-      speciality: "Computer Systems",
-      creationDate: "2024-01-20",
-      term: "Spring",
-    },
+    
   ]);
 
   // Function to delete a group chat
