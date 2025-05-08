@@ -3,8 +3,6 @@ import axios from "axios";
 import {
   FaRegComment,
   FaUser,
-  FaCheckCircle,
-  FaExclamationTriangle,
   FaTrash,
   FaThumbsUp,
 } from "react-icons/fa";
@@ -79,38 +77,11 @@ const ManagePostsPage = () => {
     }
   };
 
-  const updatePostStatus = (postId, newStatus) => {
-    setPosts(
-      posts.map((post) =>
-        post.id === postId ? { ...post, status: newStatus } : post
-      )
-    );
-    toast.success(`Post marked as ${newStatus}`);
-  };
-
   const deletePost = (postId) => {
     if (window.confirm("Are you sure you want to delete this post?")) {
       setPosts(posts.filter((post) => post.id !== postId));
       toast.success("Post deleted.");
     }
-  };
-
-  const updateCommentStatus = (postId, commentId) => {
-    setPosts(
-      posts.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              comments: post.comments.map((comment) =>
-                comment.id === commentId
-                  ? { ...comment, status: "Approved" }
-                  : comment
-              ),
-            }
-          : post
-      )
-    );
-    toast.success("Comment approved.");
   };
 
   const deleteComment = (postId, commentId) => {
@@ -177,32 +148,20 @@ const ManagePostsPage = () => {
             </div>
             <div className="mt-3 flex justify-end gap-3">
               <button
-                onClick={() => updatePostStatus(post.id, "Approved")}
-                className="px-3 py-1 bg-green-500 rounded hover:bg-green-600 transition flex items-center gap-1"
-              >
-                <FaCheckCircle /> Approve
-              </button>
-              <button
-                onClick={() => updatePostStatus(post.id, "Flagged")}
-                className="px-3 py-1 bg-red-500 rounded hover:bg-red-600 transition flex items-center gap-1"
-              >
-                <FaExclamationTriangle /> Flag
-              </button>
-              <button
                 onClick={() => deletePost(post.id)}
-                className="px-3 py-1 bg-gray-600 rounded hover:bg-gray-700 transition flex items-center gap-1"
+                className="px-3 py-1 bg-red-500 rounded hover:bg-gray-700 transition flex items-center gap-1"
               >
                 <FaTrash /> Remove
               </button>
             </div>
             {expandedPost === post.id && (
               <div className="mt-4 border-t border-gray-700 pt-3">
-                <h5 className="font-medium text-white">Comments</h5>
+                <h5 className="font-bold" style={{ color: "#3881a5" }}>
+                  Comments
+                </h5>
 
                 {commentsLoading === post.id ? (
-                  <p className="text-gray-400 mt-3 text-sm">
-                    Loading comments...
-                  </p>
+                  <p className="text-gray-400 mt-3 text-sm">Loading comments...</p>
                 ) : post.comments?.length > 0 ? (
                   <ul className="mt-2 space-y-2">
                     {post.comments.map((comment) => (
@@ -233,16 +192,6 @@ const ManagePostsPage = () => {
                                 )
                               : "N/A"}
                           </span>
-                          {comment.status !== "Approved" && (
-                            <button
-                              className="text-green-400 hover:text-green-500 cursor-pointer flex items-center gap-1"
-                              onClick={() =>
-                                updateCommentStatus(post.id, comment.id)
-                              }
-                            >
-                              <FaCheckCircle />
-                            </button>
-                          )}
                           <FaTrash
                             className="text-red-400 hover:text-red-500 cursor-pointer"
                             onClick={() => deleteComment(post.id, comment.id)}
@@ -252,9 +201,7 @@ const ManagePostsPage = () => {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-sm text-gray-400">
-                    No comments available.
-                  </p>
+                  <p className="text-sm text-gray-400">No comments available.</p>
                 )}
               </div>
             )}
