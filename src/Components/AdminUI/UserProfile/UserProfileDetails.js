@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import {
   FaRegComment,
-  FaUser,
   FaTrash,
   FaThumbsUp,
   FaCheckCircle,
@@ -16,6 +15,7 @@ import {
   Button,
   Divider,
   CircularProgress,
+  Avatar,
 } from "@mui/material";
 
 const UserProfileDetails = () => {
@@ -61,10 +61,13 @@ const UserProfileDetails = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://209.38.178.0/api/services/get-postComment", {
-        headers: { Authorization: `Bearer ${token}` },
-        params: { postId },
-      });
+      const res = await axios.get(
+        "http://209.38.178.0/api/services/get-postComment",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { postId },
+        }
+      );
 
       const comments = res.data.comment || [];
 
@@ -144,21 +147,29 @@ const UserProfileDetails = () => {
       ) : (
         <Box mt={4} display="flex" flexDirection="column" gap={3}>
           {posts.map((post) => (
-            <Paper key={post.id} elevation={3} sx={{
-              p: 3,
-              backgroundColor: "#f7fafc", // Light blue background
-            }}>
+            <Paper
+              key={post.id}
+              elevation={3}
+              sx={{
+                p: 3,
+                backgroundColor: "#f7fafc",
+              }}
+            >
               <Box display="flex" justifyContent="space-between">
-  <Box display="flex" alignItems="center" gap={1}>
-    <FaUser style={{ color: "#3881a5" }} />
-    <Typography fontWeight="bold" sx={{ color: "black" }}>
-      {post.user?.name || "Unknown"}
-    </Typography>
-  </Box>
-  <Typography variant="caption" color="text.secondary">
-    {post.createdAt ? formatDate(post.createdAt) : "Unknown date"}
-  </Typography>
-</Box>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Avatar
+                    src={post.user?.imageUri}
+                    alt={post.user?.name}
+                    sx={{ width: 32, height: 32 }}
+                  />
+                  <Typography fontWeight="bold" sx={{ color: "black" }}>
+                    {post.user?.name || "Unknown"}
+                  </Typography>
+                </Box>
+                <Typography variant="caption" color="text.secondary">
+                  {post.createdAt ? formatDate(post.createdAt) : "Unknown date"}
+                </Typography>
+              </Box>
 
               <Typography sx={{ mt: 2 }}>{post.postText}</Typography>
 
@@ -194,7 +205,12 @@ const UserProfileDetails = () => {
               {expandedPost === post.id && (
                 <Box mt={3}>
                   <Divider />
-                  <Typography variant="subtitle1" fontWeight="bold" mt={2} sx={{ color: "#3881a5" }}>
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight="bold"
+                    mt={2}
+                    sx={{ color: "#3881a5" }}
+                  >
                     Comments
                   </Typography>
 
