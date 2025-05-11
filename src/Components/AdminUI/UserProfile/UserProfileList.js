@@ -13,6 +13,7 @@ import {
   Snackbar,
   Alert,
   Avatar,
+  Typography,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { styled, alpha } from "@mui/material/styles";
@@ -40,8 +41,9 @@ const SearchIconWrapper = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  color: theme.palette.text.secondary,
+  color: "#3881a5", // blue like delete icon
 }));
+
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   marginLeft: theme.spacing(1),
@@ -124,6 +126,17 @@ const UserProfileList = () => {
       });
   };
 
+  const renderNA = () => (
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      fontStyle="italic"
+      sx={{ mt: "14px" }} // Increased from 4px to 8px
+    >
+      N/A
+    </Typography>
+  );
+  
   const columns = [
     {
       field: "imageUri",
@@ -150,7 +163,7 @@ const UserProfileList = () => {
       headerName: "Level",
       width: 150,
       renderCell: (params) => {
-        if (params.row.isAlum) return "";
+        if (params.row.isAlum) return renderNA();
         switch (params.row.year) {
           case 1:
             return "Freshman";
@@ -163,7 +176,7 @@ const UserProfileList = () => {
           case 5:
             return "Final";
           default:
-            return "";
+            return renderNA();
         }
       },
     },
@@ -182,27 +195,47 @@ const UserProfileList = () => {
           case 4:
             return "Renewable";
           default:
-            return "";
+            return renderNA();
         }
       },
     },
     {
       field: "graduationYear",
       headerName: "Graduation Year",
-      width: 150,
+      width: 160,
       renderCell: (params) => {
-        if (params.row.graduationYear) {
+        if (params.row.isAlum && params.row.graduationYear) {
           const year = new Date(params.row.graduationYear).getFullYear();
-          return isNaN(year) ? "" : year;
+          return isNaN(year) ? renderNA() : year;
         }
-        return "";
+
+        const currentYear = new Date().getFullYear();
+        switch (params.row.year) {
+          case 1:
+            return currentYear + 4;
+          case 2:
+            return currentYear + 3;
+          case 3:
+            return currentYear + 2;
+          case 4:
+            return currentYear + 1;
+          case 5:
+            return currentYear;
+          default:
+            return renderNA();
+        }
       },
     },
     {
       field: "group",
       headerName: "Group",
       width: 150,
-      renderCell: (params) => (params.row.group ? params.row.group : ""),
+      renderCell: (params) => {
+        if (params.row.isAlum || !params.row.group) {
+          return renderNA();
+        }
+        return params.row.group;
+      },
     },
     {
       field: "actions",
