@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Paper,
-  InputBase,
+  InputAdornment,
+  TextField,
   IconButton,
   Dialog,
   DialogActions,
@@ -16,39 +17,10 @@ import {
   Typography,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { styled, alpha } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
-// Styled Search Bar
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.black, 0.05),
-  "&:hover": { backgroundColor: alpha(theme.palette.common.black, 0.1) },
-  margin: "auto",
-  width: "100%",
-  maxWidth: 400,
-  display: "flex",
-  alignItems: "center",
-  padding: theme.spacing(0.5, 1),
-}));
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  color: "#3881a5", // blue like delete icon
-}));
-
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  marginLeft: theme.spacing(1),
-  flex: 1,
-}));
 
 const UserProfileList = () => {
   const navigate = useNavigate();
@@ -131,12 +103,12 @@ const UserProfileList = () => {
       variant="body2"
       color="text.secondary"
       fontStyle="italic"
-      sx={{ mt: "14px" }} // Increased from 4px to 8px
+      sx={{ mt: "14px" }}
     >
       N/A
     </Typography>
   );
-  
+
   const columns = [
     {
       field: "imageUri",
@@ -259,17 +231,21 @@ const UserProfileList = () => {
   return (
     <Box>
       <Box sx={{ my: 2, display: "flex", justifyContent: "center" }}>
-        <Search>
-          <SearchIconWrapper>
-            <SearchIcon />
-          </SearchIconWrapper>
-          <StyledInputBase
-            placeholder="Search User Profiles…"
-            inputProps={{ "aria-label": "search" }}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </Search>
+        <TextField
+          variant="outlined"
+          placeholder="Search by email or username"
+          size="small"
+          sx={{ width: 400 }}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: "#3881a5" }} />
+              </InputAdornment>
+            ),
+          }}
+        />
       </Box>
 
       <Paper sx={{ height: 400, width: "100%" }}>
