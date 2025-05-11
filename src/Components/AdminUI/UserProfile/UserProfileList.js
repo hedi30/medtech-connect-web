@@ -12,6 +12,7 @@ import {
   Button,
   Snackbar,
   Alert,
+  Avatar,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { styled, alpha } from "@mui/material/styles";
@@ -53,7 +54,7 @@ const UserProfileList = () => {
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [rows, setRows] = useState([]);
-  const [snackbarOpen, setSnackbarOpen] = useState(false); // ✅ Snackbar state
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -76,7 +77,6 @@ const UserProfileList = () => {
       });
   }, []);
 
-  // Filtered rows for search
   const filteredRows = Array.isArray(rows)
     ? rows.filter((row) =>
         `${row.email} ${row.isAlum} ${row.year} ${row.major} ${row.group}`
@@ -113,9 +113,9 @@ const UserProfileList = () => {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then((response) => {
+      .then(() => {
         setRows((prevRows) => prevRows.filter((row) => row.id !== selectedId));
-        setSnackbarOpen(true); // ✅ Trigger snackbar
+        setSnackbarOpen(true);
         handleClose();
       })
       .catch((error) => {
@@ -125,6 +125,19 @@ const UserProfileList = () => {
   };
 
   const columns = [
+    {
+      field: "imageUri",
+      headerName: "Photo",
+      width: 100,
+      sortable: false,
+      renderCell: (params) => (
+        <Avatar
+          alt={params.row.name}
+          src={params.row.imageUri}
+          sx={{ width: 40, height: 40 }}
+        />
+      ),
+    },
     { field: "email", headerName: "Email", width: 250 },
     {
       field: "role",
@@ -137,6 +150,7 @@ const UserProfileList = () => {
       headerName: "Level",
       width: 150,
       renderCell: (params) => {
+        if (params.row.isAlum) return "";
         switch (params.row.year) {
           case 1:
             return "Freshman";
@@ -149,24 +163,26 @@ const UserProfileList = () => {
           case 5:
             return "Final";
           default:
-            return "Unknown";
+            return "";
         }
       },
     },
     {
       field: "major",
       headerName: "Major",
-      width: 150,
+      width: 180,
       renderCell: (params) => {
         switch (params.row.major) {
           case 1:
-            return "Software";
+            return "Pre-Engineering";
           case 2:
-            return "Computer Systems";
+            return "Software";
           case 3:
+            return "Computer Systems";
+          case 4:
             return "Renewable";
           default:
-            return "Unknown";
+            return "";
         }
       },
     },
@@ -176,17 +192,17 @@ const UserProfileList = () => {
       width: 150,
       renderCell: (params) => {
         if (params.row.graduationYear) {
-          const graduationYear = new Date(params.row.graduationYear);
-          return graduationYear.getFullYear() || "Unknown";
+          const year = new Date(params.row.graduationYear).getFullYear();
+          return isNaN(year) ? "" : year;
         }
-        return "Unknown";
+        return "";
       },
     },
     {
       field: "group",
       headerName: "Group",
       width: 150,
-      renderCell: (params) => (params.row.group ? params.row.group : "Unknown"),
+      renderCell: (params) => (params.row.group ? params.row.group : ""),
     },
     {
       field: "actions",
@@ -209,7 +225,6 @@ const UserProfileList = () => {
 
   return (
     <Box>
-      {/* Search Bar */}
       <Box sx={{ my: 2, display: "flex", justifyContent: "center" }}>
         <Search>
           <SearchIconWrapper>
@@ -224,7 +239,6 @@ const UserProfileList = () => {
         </Search>
       </Box>
 
-      {/* Data Table */}
       <Paper sx={{ height: 400, width: "100%" }}>
         <DataGrid
           rows={filteredRows}
@@ -235,7 +249,6 @@ const UserProfileList = () => {
         />
       </Paper>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Are you sure you want to delete this profile?</DialogTitle>
         <DialogContent>
@@ -251,7 +264,6 @@ const UserProfileList = () => {
         </DialogActions>
       </Dialog>
 
-      {/* ✅ Snackbar for delete success */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
