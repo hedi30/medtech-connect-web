@@ -106,7 +106,8 @@ const UserList = () => {
             >
               <ListItemButton>
                 <ListItemAvatar>
-                  <Avatar src={user.avatar || ""} alt={user.name || "User"} />
+                <Avatar src={user.imageUri || ""} alt={user.name || "User"} />
+
                 </ListItemAvatar>
                 <ListItemText
                   id={`checkbox-${user.id}`}
