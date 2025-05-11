@@ -75,19 +75,19 @@ const ManageSuspiciousPosts = () => {
   };
 
   const approvePost = (postId) => {
-  setPosts((prevPosts) =>
-    prevPosts.map((post) =>
-      post.id === postId ? { ...post, status: "Approved" } : post
-    )
-  );
-  toast.success("Post approved.");
-};
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === postId ? { ...post, status: "Approved" } : post
+      )
+    );
+    toast.success("Post approved.");
+  };
 
   const deletePost = async (postId) => {
     if (window.confirm("Are you sure you want to delete this post?")) {
       const token = localStorage.getItem("token");
       try {
-        await axios.delete("http://209.38.178.0/api/services/delete-post", {
+        await axios.delete("http://209.38.178.0/api/services/delete-post-web", {
           headers: { Authorization: `Bearer ${token}` },
           data: { postId },
         });
@@ -117,19 +117,25 @@ const ManageSuspiciousPosts = () => {
     }
   };
 
-  if (loading) return <div className="text-black p-6">Loading suspicious posts...</div>;
+  if (loading)
+    return <div className="text-black p-6">Loading suspicious posts...</div>;
 
   return (
     <div className="bg-white text-black p-6 min-h-screen">
       <ToastContainer position="bottom-right" autoClose={2500} />
-      <h1 className="text-3xl font-bold text-[#3881a5]">🚨 Suspicious Posts Management</h1>
+      <h1 className="text-3xl font-bold text-[#3881a5]">
+        🚨 Suspicious Posts Management
+      </h1>
 
       {posts.length === 0 ? (
         <p className="mt-4 text-gray-400">No suspicious posts at the moment.</p>
       ) : (
         <div className="space-y-6 mt-6">
           {posts.map((post) => (
-            <div key={post.id} className="p-6 bg-[#f7fafc] rounded-lg shadow-md border">
+            <div
+              key={post.id}
+              className="p-6 bg-[#f7fafc] rounded-lg shadow-md border"
+            >
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <img
@@ -137,12 +143,18 @@ const ManageSuspiciousPosts = () => {
                     alt="avatar"
                     className="w-8 h-8 rounded-full object-cover"
                   />
-                  <h2 className="text-lg font-semibold">{post.user?.name || "Unknown"}</h2>
-                  {post.isAlumni && <FaStar className="text-yellow-500" title="Alumni" />}
+                  <h2 className="text-lg font-semibold">
+                    {post.user?.name || "Unknown"}
+                  </h2>
+                  {post.isAlumni && (
+                    <FaStar className="text-yellow-500" title="Alumni" />
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-500">
-                    {post.createdAt ? formatDate(post.createdAt) : "Unknown date"}
+                    {post.createdAt
+                      ? formatDate(post.createdAt)
+                      : "Unknown date"}
                   </span>
                   {post.status === "Approved" && (
                     <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 font-medium rounded-full border border-green-300">
@@ -216,7 +228,9 @@ const ManageSuspiciousPosts = () => {
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-sm text-gray-400">No comments available.</p>
+                    <p className="text-sm text-gray-400">
+                      No comments available.
+                    </p>
                   )}
                 </div>
               )}

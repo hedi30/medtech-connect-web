@@ -26,7 +26,9 @@ const ManagePostsPage = () => {
         },
       })
       .then((res) => {
-        const unflaggedPosts = res.data.posts.filter((post) => post.flagged === false);
+        const unflaggedPosts = res.data.posts.filter(
+          (post) => post.flagged === false
+        );
         setPosts(unflaggedPosts);
         setLoading(false);
       })
@@ -82,7 +84,7 @@ const ManagePostsPage = () => {
     if (window.confirm("Are you sure you want to delete this post?")) {
       const token = localStorage.getItem("token");
       try {
-        await axios.delete("http://209.38.178.0/api/services/delete-post", {
+        await axios.delete("http://209.38.178.0/api/services/delete-post-web", {
           headers: { Authorization: `Bearer ${token}` },
           data: { postId },
         });
@@ -94,7 +96,6 @@ const ManagePostsPage = () => {
       }
     }
   };
-  
 
   const deleteComment = (postId, commentId) => {
     if (window.confirm("Are you sure you want to delete this comment?")) {
@@ -192,7 +193,9 @@ const ManagePostsPage = () => {
                 <h5 className="font-bold text-[#3881a5]">Comments</h5>
 
                 {commentsLoading === post.id ? (
-                  <p className="text-gray-400 mt-3 text-sm">Loading comments...</p>
+                  <p className="text-gray-400 mt-3 text-sm">
+                    Loading comments...
+                  </p>
                 ) : post.comments?.length > 0 ? (
                   <ul className="mt-2 space-y-2">
                     {post.comments.map((comment) => (
@@ -217,16 +220,21 @@ const ManagePostsPage = () => {
                           <div className="flex items-center gap-3">
                             <span className="text-xs text-gray-500">
                               {comment.createdAt
-                                ? new Date(comment.createdAt).toLocaleString(undefined, {
-                                    dateStyle: "short",
-                                    timeStyle: "short",
-                                  })
+                                ? new Date(comment.createdAt).toLocaleString(
+                                    undefined,
+                                    {
+                                      dateStyle: "short",
+                                      timeStyle: "short",
+                                    }
+                                  )
                                 : "N/A"}
                             </span>
                             {comment.status !== "Approved" && (
                               <FaCheckCircle
                                 className="text-green-600 hover:text-green-800 cursor-pointer"
-                                onClick={() => approveComment(post.id, comment.id)}
+                                onClick={() =>
+                                  approveComment(post.id, comment.id)
+                                }
                               />
                             )}
                             <FaTrash
