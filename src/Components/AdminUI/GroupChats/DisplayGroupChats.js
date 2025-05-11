@@ -5,34 +5,20 @@ import {
   Paper,
   Button,
   IconButton,
-  InputBase,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
   Slide,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { styled, alpha } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import AddIcon from "@mui/icons-material/Add";
-
-// Search Bar Styling
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.black, 0.05),
-  "&:hover": { backgroundColor: alpha(theme.palette.common.black, 0.1) },
-  margin: "auto",
-  width: "100%",
-  maxWidth: 400,
-  display: "flex",
-  alignItems: "center",
-  padding: theme.spacing(0.5, 1),
-}));
 
 const DisplayGroupChats = ({ groupChats, onDelete }) => {
   const navigate = useNavigate();
@@ -61,34 +47,33 @@ const DisplayGroupChats = ({ groupChats, onDelete }) => {
       chat.speciality.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Row click handler for navigation
   const handleRowClick = (param, event) => {
-    // Prevent row click event if the action button is clicked
-    if (event.target.closest(".action-buttons")) {
-      return;
-    }
-    const selectedRowId = param.row.id;
-    navigate(`/admin/chats/${selectedRowId}`); // Navigate to the group chat's details page
+    if (event.target.closest(".action-buttons")) return;
+    navigate(`/admin/chats/${param.row.id}`);
   };
 
   return (
-    <Box
-      sx={{ backgroundColor: "#f5f5f5", padding: "20px", borderRadius: "10px" }}
-    >
-      {/* Search Bar */}
+    <Box sx={{ backgroundColor: "#f5f5f5", padding: "20px", borderRadius: "10px" }}>
+      {/* ✅ Search Bar (modern TextField style) */}
       <Box sx={{ my: 2, display: "flex", justifyContent: "center" }}>
-        <Search>
-          <SearchIcon />
-          <InputBase
-            placeholder="Search Group Chats…"
-            inputProps={{ "aria-label": "search" }}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </Search>
+        <TextField
+          variant="outlined"
+          placeholder="Search Group Chats..."
+          size="small"
+          sx={{ width: 400 }}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: "#3881a5" }} />
+              </InputAdornment>
+            ),
+          }}
+        />
       </Box>
 
-      {/* Table */}
+      {/* Group Chat Table */}
       <Paper
         sx={{
           height: 400,
@@ -101,11 +86,7 @@ const DisplayGroupChats = ({ groupChats, onDelete }) => {
           rows={filteredRows}
           columns={[
             { field: "id", headerName: "ID", width: 70 },
-            {
-              field: "name",
-              headerName: "Group Name",
-              width: 200,
-            },
+            { field: "name", headerName: "Group Name", width: 200 },
             { field: "level", headerName: "Level", width: 150 },
             { field: "speciality", headerName: "Speciality", width: 200 },
             { field: "creationDate", headerName: "Creation Date", width: 180 },
@@ -118,7 +99,7 @@ const DisplayGroupChats = ({ groupChats, onDelete }) => {
                 <Box display="flex" gap={1} className="action-buttons">
                   <IconButton
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent row click event
+                      e.stopPropagation();
                       navigate(`/admin/chats/edit/${params.row.id}`);
                     }}
                   >
@@ -127,7 +108,7 @@ const DisplayGroupChats = ({ groupChats, onDelete }) => {
 
                   <IconButton
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent row click event
+                      e.stopPropagation();
                       handleClickOpen(params.row.id);
                     }}
                   >
@@ -138,7 +119,7 @@ const DisplayGroupChats = ({ groupChats, onDelete }) => {
             },
           ]}
           pageSizeOptions={[5, 10]}
-          onRowClick={handleRowClick} // Trigger navigation on row click
+          onRowClick={handleRowClick}
           sx={{ border: 0 }}
         />
       </Paper>
@@ -160,12 +141,7 @@ const DisplayGroupChats = ({ groupChats, onDelete }) => {
       </Box>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={open}
-        TransitionComponent={Slide}
-        keepMounted
-        onClose={handleClose}
-      >
+      <Dialog open={open} TransitionComponent={Slide} keepMounted onClose={handleClose}>
         <DialogTitle>{"Are you sure you want to delete?"}</DialogTitle>
         <DialogContent>
           <DialogContentText>This action cannot be undone.</DialogContentText>
