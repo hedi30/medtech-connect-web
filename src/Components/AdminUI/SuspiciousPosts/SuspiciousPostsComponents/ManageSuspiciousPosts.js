@@ -127,15 +127,6 @@ const ManageSuspiciousPosts = () => {
     }
   };
 
-  const approvePost = (postId) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) =>
-        post.id === postId ? { ...post, status: "Approved" } : post
-      )
-    );
-    toast.success("Post approved.");
-  };
-
   if (loading)
     return <div className="text-black p-6">Loading suspicious posts...</div>;
 
