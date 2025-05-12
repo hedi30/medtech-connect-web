@@ -10,16 +10,46 @@ import {
 } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+  Slide,
+} from "@mui/material";
+
+// Delete confirmation dialog
+const DeleteConfirmationDialog = ({ open, handleClose, handleConfirm }) => (
+  <Dialog open={open} TransitionComponent={Slide} keepMounted onClose={handleClose}>
+    <DialogTitle>{"Delete Post?"}</DialogTitle>
+    <DialogContent>
+      <DialogContentText>
+        Are you sure you want to delete this post? This action cannot be undone.
+      </DialogContentText>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={handleClose} color="error">
+        Cancel
+      </Button>
+      <Button onClick={handleConfirm} color="primary" autoFocus>
+        Confirm
+      </Button>
+    </DialogActions>
+  </Dialog>
+);
 
 const ManageSuspiciousPosts = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedPost, setExpandedPost] = useState(null);
   const [commentsLoading, setCommentsLoading] = useState(null);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     axios
       .get("http://209.38.178.0/api/services/all-posts-web", {
         headers: { Authorization: `Bearer ${token}` },
@@ -62,15 +92,51 @@ const ManageSuspiciousPosts = () => {
 
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
-          post.id === postId
-            ? { ...post, comments: res.data.comment || [] }
-            : post
+          post.id === postId ? { ...post, comments: res.data.comment || [] } : post
         )
       );
     } catch (err) {
       console.error("❌ Failed to fetch comments:", err);
     } finally {
       setCommentsLoading(null);
+    }
+  };
+
+  const handleDeleteRequest = (postId) => {
+    setPostToDelete(postId);
+    setConfirmDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete("http://209.38.178.0/api/services/delete-post-web", {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { postId: postToDelete },
+      });
+      setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postToDelete));
+      toast.success("Post deleted.");
+    } catch (error) {
+      toast.error("Failed to delete post.");
+      console.error("❌ Delete post error:", error);
+    } finally {
+      setConfirmDialogOpen(false);
+      setPostToDelete(null);
+    }
+  };
+
+  const deleteComment = (postId, commentId) => {
+    if (window.confirm("Are you sure you want to delete this comment?")) {
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                comments: post.comments.filter((comment) => comment.id !== commentId),
+              }
+            : post
+        )
+      );
     }
   };
 
@@ -83,59 +149,20 @@ const ManageSuspiciousPosts = () => {
     toast.success("Post approved.");
   };
 
-  const deletePost = async (postId) => {
-    if (window.confirm("Are you sure you want to delete this post?")) {
-      const token = localStorage.getItem("token");
-      try {
-        await axios.delete("http://209.38.178.0/api/services/delete-post-web", {
-          headers: { Authorization: `Bearer ${token}` },
-          data: { postId },
-        });
-        setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
-        toast.success("Post deleted.");
-      } catch (error) {
-        toast.error("Failed to delete post.");
-        console.error("❌ Delete post error:", error);
-      }
-    }
-  };
-
-  const deleteComment = (postId, commentId) => {
-    if (window.confirm("Are you sure you want to delete this comment?")) {
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post.id === postId
-            ? {
-                ...post,
-                comments: post.comments.filter(
-                  (comment) => comment.id !== commentId
-                ),
-              }
-            : post
-        )
-      );
-    }
-  };
-
   if (loading)
     return <div className="text-black p-6">Loading suspicious posts...</div>;
 
   return (
     <div className="bg-white text-black p-6 min-h-screen">
       <ToastContainer position="bottom-right" autoClose={2500} />
-      <h1 className="text-3xl font-bold text-[#3881a5]">
-        🚨 Suspicious Posts Management
-      </h1>
+      <h1 className="text-3xl font-bold text-[#3881a5]">🚨 Suspicious Posts Management</h1>
 
       {posts.length === 0 ? (
         <p className="mt-4 text-gray-400">No suspicious posts at the moment.</p>
       ) : (
         <div className="space-y-6 mt-6">
           {posts.map((post) => (
-            <div
-              key={post.id}
-              className="p-6 bg-[#f7fafc] rounded-lg shadow-md border"
-            >
+            <div key={post.id} className="p-6 bg-[#f7fafc] rounded-lg shadow-md border">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <img
@@ -152,9 +179,7 @@ const ManageSuspiciousPosts = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-500">
-                    {post.createdAt
-                      ? formatDate(post.createdAt)
-                      : "Unknown date"}
+                    {post.createdAt ? formatDate(post.createdAt) : "Unknown date"}
                   </span>
                   {post.status === "Approved" && (
                     <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 font-medium rounded-full border border-green-300">
@@ -186,7 +211,7 @@ const ManageSuspiciousPosts = () => {
                   <FaCheckCircle /> Approve Post
                 </button>
                 <button
-                  onClick={() => deletePost(post.id)}
+                  onClick={() => handleDeleteRequest(post.id)}
                   className="px-4 py-1.5 text-red-600 border border-red-500 rounded hover:bg-red-500 hover:text-white transition flex items-center gap-2"
                 >
                   <FaTrash /> Remove Post
@@ -228,9 +253,7 @@ const ManageSuspiciousPosts = () => {
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-sm text-gray-400">
-                      No comments available.
-                    </p>
+                    <p className="text-sm text-gray-400">No comments available.</p>
                   )}
                 </div>
               )}
@@ -238,6 +261,12 @@ const ManageSuspiciousPosts = () => {
           ))}
         </div>
       )}
+
+      <DeleteConfirmationDialog
+        open={confirmDialogOpen}
+        handleClose={() => setConfirmDialogOpen(false)}
+        handleConfirm={handleConfirmDelete}
+      />
     </div>
   );
 };

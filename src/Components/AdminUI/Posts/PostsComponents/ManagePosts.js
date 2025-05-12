@@ -9,26 +9,58 @@ import {
 } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+  Slide,
+} from "@mui/material";
+
+// Delete Confirmation Dialog Component
+const DeleteConfirmationDialog = ({ open, handleClose, handleConfirm }) => (
+  <Dialog
+    open={open}
+    TransitionComponent={Slide}
+    keepMounted
+    onClose={handleClose}
+  >
+    <DialogTitle>{"Delete Post?"}</DialogTitle>
+    <DialogContent>
+      <DialogContentText>
+        Are you sure you want to delete this post? This action cannot be undone.
+      </DialogContentText>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={handleClose} color="error">
+        Cancel
+      </Button>
+      <Button onClick={handleConfirm} color="primary" autoFocus>
+        Confirm
+      </Button>
+    </DialogActions>
+  </Dialog>
+);
 
 const ManagePostsPage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedPost, setExpandedPost] = useState(null);
   const [commentsLoading, setCommentsLoading] = useState(null);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     axios
       .get("http://209.38.178.0/api/services/all-posts-web", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        const unflaggedPosts = res.data.posts.filter(
-          (post) => post.flagged === false
-        );
+        const unflaggedPosts = res.data.posts.filter((post) => !post.flagged);
         setPosts(unflaggedPosts);
         setLoading(false);
       })
@@ -58,9 +90,7 @@ const ManagePostsPage = () => {
       const res = await axios.get(
         "http://209.38.178.0/api/services/get-postComment",
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
           params: { postId },
         }
       );
@@ -74,26 +104,30 @@ const ManagePostsPage = () => {
       );
     } catch (err) {
       toast.error("Failed to load comments.");
-      console.error("❌ Failed to fetch comments:", err);
     } finally {
       setCommentsLoading(null);
     }
   };
 
-  const deletePost = async (postId) => {
-    if (window.confirm("Are you sure you want to delete this post?")) {
-      const token = localStorage.getItem("token");
-      try {
-        await axios.delete("http://209.38.178.0/api/services/delete-post-web", {
-          headers: { Authorization: `Bearer ${token}` },
-          data: { postId },
-        });
-        setPosts(posts.filter((post) => post.id !== postId));
-        toast.success("Post deleted.");
-      } catch (error) {
-        toast.error("Failed to delete post.");
-        console.error("❌ Delete post error:", error);
-      }
+  const handleDeleteRequest = (postId) => {
+    setPostToDelete(postId);
+    setConfirmDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete("http://209.38.178.0/api/services/delete-post-web", {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { postId: postToDelete },
+      });
+      setPosts(posts.filter((post) => post.id !== postToDelete));
+      toast.success("Post deleted.");
+    } catch (error) {
+      toast.error("Failed to delete post.");
+    } finally {
+      setConfirmDialogOpen(false);
+      setPostToDelete(null);
     }
   };
 
@@ -181,7 +215,7 @@ const ManagePostsPage = () => {
 
             <div className="mt-3 flex justify-end">
               <button
-                onClick={() => deletePost(post.id)}
+                onClick={() => handleDeleteRequest(post.id)}
                 className="px-4 py-1.5 text-red-600 border border-red-500 rounded hover:bg-red-500 hover:text-white transition flex items-center gap-2"
               >
                 <FaTrash /> Remove Post
@@ -205,7 +239,7 @@ const ManagePostsPage = () => {
                           comment.status === "Approved"
                             ? "bg-[#d0f0c0] text-black"
                             : "bg-[#f5f5f5] text-gray-700"
-                        } shadow-md`}
+                        }`}
                       >
                         <div className="flex justify-between items-center">
                           <div className="flex items-center gap-2">
@@ -256,6 +290,12 @@ const ManagePostsPage = () => {
           </div>
         ))}
       </div>
+
+      <DeleteConfirmationDialog
+        open={confirmDialogOpen}
+        handleClose={() => setConfirmDialogOpen(false)}
+        handleConfirm={handleConfirmDelete}
+      />
     </div>
   );
 };
