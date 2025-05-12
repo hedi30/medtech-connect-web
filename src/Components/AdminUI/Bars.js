@@ -20,23 +20,23 @@ const Bars = () => {
     datasets: [
       {
         label: 'Posts Created',
-        data: [120, 150, 180, 170, 190, 220, 250], 
-        backgroundColor: 'rgba(0, 131, 169, 0.6)',  // Updated shade of #0083a9
-        borderColor: 'rgb(0, 131, 169)',  // Updated shade of #0083a9
+        data: [120, 150, 180, 170, 190, 220, 250],
+        backgroundColor: 'rgba(0, 131, 169, 0.6)',
+        borderColor: 'rgb(0, 131, 169)',
         borderWidth: 1,
       },
       {
         label: 'Comments Made',
-        data: [300, 350, 400, 380, 420, 450, 500], 
-        backgroundColor: 'rgba(0, 102, 128, 0.6)',  // Darker shade of #0083a9
-        borderColor: 'rgb(0, 102, 128)',  // Darker shade of #0083a9
+        data: [300, 350, 400, 380, 420, 450, 500],
+        backgroundColor: 'rgba(0, 102, 128, 0.6)',
+        borderColor: 'rgb(0, 102, 128)',
         borderWidth: 1,
       },
       {
         label: 'Group Joins',
-        data: [50, 65, 80, 75, 90, 100, 120], 
-        backgroundColor: 'rgba(0, 158, 188, 0.6)',  // Lighter shade of #0083a9
-        borderColor: 'rgb(0, 158, 188)',  // Lighter shade of #0083a9
+        data: [50, 65, 80, 75, 90, 100, 120],
+        backgroundColor: 'rgba(72, 33, 33, 0.6)',   // #482121
+        borderColor: 'rgb(72, 33, 33)',             // #482121
         borderWidth: 1,
       },
     ],

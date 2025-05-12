@@ -1,42 +1,59 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
-import ThreeCards from "./ThreeCards"; // Adjust the path accordingly
-import AdminPost from "./AdminPost"; // Import the AdminPost component
-import MyChart from "./MyChart"; // Import the chart component
-import Bars from "./Bars"; // Import Bars.js
+import MyChart from "./MyChart";
+import Bars from "./Bars";
+import Dashboard from "./UsersRegistered";
+import Alumni from "./AlumniEngagement";
+import DataBars from "./DataBars";
+import BasicPie from "./BasicPie"; // Import the PieChart component
 
 const AdminDashboard = () => {
   return (
     <Box sx={{ padding: "20px" }}>
-      <Typography
-        variant="h4"
-        gutterBottom
-        sx={{ fontWeight: "bold", color: "#3881a5" }}
-      >
-        {" "}
-        Welcome to the Admin Dashboard
-      </Typography>
+ <Typography
+  variant="h6"
+  gutterBottom
+  sx={{
+    fontWeight: "bold",
+    color: "#333", // A dark grey for consistency
+    fontSize: "1.1rem",
+    marginBottom: "30px",
+  }}
+>
+  Hi, Welcome back 👋
+</Typography>
 
+
+      {/* 2 columns layout: Dashboard + Alumni, then DataBars and PieChart side by side */}
       <Box
         sx={{
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "stretch",
           gap: 2,
+          alignItems: "stretch", // Ensures equal height for components in both columns
         }}
       >
-        {/* Render ThreeCards component */}
-        <Box sx={{ flex: 1 }}>
-          <ThreeCards />
+        {/* Left column: Dashboard + DataBars */}
+        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+          <Box sx={{ flex: 1 }}>
+            <Dashboard />
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <DataBars />
+          </Box>
         </Box>
 
-        {/* Render AdminPost component */}
-        <Box sx={{ flex: 1 }}>
-          <AdminPost />
+        {/* Right column: Alumni + PieChart */}
+        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+          <Box sx={{ flex: 1 }}>
+            <Alumni />
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <BasicPie /> {/* Add the PieChart next to DataBars */}
+          </Box>
         </Box>
       </Box>
 
-      {/* Render MyChart separately with equal width */}
+      {/* MyChart Section */}
       <Box
         sx={{
           marginTop: "20px",
@@ -46,20 +63,19 @@ const AdminDashboard = () => {
         }}
       >
         <Box sx={{ width: "80%" }}>
-          <MyChart />
         </Box>
       </Box>
 
-      {/* Render Bars chart separately with equal width */}
+      {/* Bars Chart Section */}
       <Box
         sx={{
-          marginTop: "150px",
+          marginTop: "40px",  // Reduced the marginTop for Bars component to bring it closer
           display: "flex",
           justifyContent: "center",
           width: "100%",
         }}
       >
-        <Box sx={{ width: "80%" }}>
+        <Box sx={{ width: "80%" }}> {/* Adjusted the width here */}
           <Bars />
         </Box>
       </Box>
