@@ -16,10 +16,11 @@ const ManageSuspiciousPosts = () => {
   const [loading, setLoading] = useState(true);
   const [expandedPost, setExpandedPost] = useState(null);
   const [commentsLoading, setCommentsLoading] = useState(null);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     axios
       .get("http://209.38.178.0/api/services/all-posts-web", {
         headers: { Authorization: `Bearer ${token}` },
@@ -126,6 +127,15 @@ const ManageSuspiciousPosts = () => {
     }
   };
 
+  const approvePost = (postId) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === postId ? { ...post, status: "Approved" } : post
+      )
+    );
+    toast.success("Post approved.");
+  };
+
   if (loading)
     return <div className="text-black p-6">Loading suspicious posts...</div>;
 
@@ -195,7 +205,7 @@ const ManageSuspiciousPosts = () => {
                   <FaCheckCircle /> Approve Post
                 </button>
                 <button
-                  onClick={() => deletePost(post.id)}
+                  onClick={() => handleDeleteRequest(post.id)}
                   className="px-4 py-1.5 text-red-600 border border-red-500 rounded hover:bg-red-500 hover:text-white transition flex items-center gap-2"
                 >
                   <FaTrash /> Remove Post
@@ -247,6 +257,12 @@ const ManageSuspiciousPosts = () => {
           ))}
         </div>
       )}
+
+      <DeleteConfirmationDialog
+        open={confirmDialogOpen}
+        handleClose={() => setConfirmDialogOpen(false)}
+        handleConfirm={handleConfirmDelete}
+      />
     </div>
   );
 };

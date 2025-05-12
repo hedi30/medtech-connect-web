@@ -264,7 +264,7 @@ const UserProfileList = () => {
           <DialogContentText>This action cannot be undone.</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="secondary">
+          <Button onClick={handleClose} color="error">
             Cancel
           </Button>
           <Button onClick={handleConfirmDelete} color="primary">
