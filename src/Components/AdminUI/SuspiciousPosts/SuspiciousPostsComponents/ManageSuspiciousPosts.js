@@ -74,13 +74,22 @@ const ManageSuspiciousPosts = () => {
     }
   };
 
-  const approvePost = (postId) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) =>
-        post.id === postId ? { ...post, status: "Approved" } : post
-      )
-    );
-    toast.success("Post approved.");
+  const approvePost = async (postId) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        "http://209.38.178.0/api/services/update-post-web",
+        { postId, flagged: false },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Remove the post from the display after approval
+      setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+      toast.success("Post approved successfully.");
+    } catch (error) {
+      console.error("❌ Failed to approve post:", error);
+      toast.error("Failed to approve post.");
+    }
   };
 
   const deletePost = async (postId) => {
