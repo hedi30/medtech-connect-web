@@ -10,6 +10,14 @@ import {
 } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+} from "@mui/material";
 
 const ManageSuspiciousPosts = () => {
   const [posts, setPosts] = useState([]);
@@ -84,7 +92,6 @@ const ManageSuspiciousPosts = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Remove the post from the display after approval
       setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
       toast.success("Post approved successfully.");
     } catch (error) {
@@ -93,20 +100,29 @@ const ManageSuspiciousPosts = () => {
     }
   };
 
-  const deletePost = async (postId) => {
-    if (window.confirm("Are you sure you want to delete this post?")) {
-      const token = localStorage.getItem("token");
-      try {
-        await axios.delete("http://209.38.178.0/api/services/delete-post-web", {
-          headers: { Authorization: `Bearer ${token}` },
-          data: { postId },
-        });
-        setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
-        toast.success("Post deleted.");
-      } catch (error) {
-        toast.error("Failed to delete post.");
-        console.error("❌ Delete post error:", error);
-      }
+  const handleDeleteRequest = (postId) => {
+    setPostToDelete(postId);
+    setConfirmDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!postToDelete) return;
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete("http://209.38.178.0/api/services/delete-post-web", {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { postId: postToDelete },
+      });
+      setPosts((prevPosts) =>
+        prevPosts.filter((post) => post.id !== postToDelete)
+      );
+      toast.success("Post deleted successfully.");
+    } catch (error) {
+      toast.error("Failed to delete post.");
+      console.error("❌ Delete post error:", error);
+    } finally {
+      setConfirmDialogOpen(false);
+      setPostToDelete(null);
     }
   };
 
@@ -225,13 +241,17 @@ const ManageSuspiciousPosts = () => {
                               alt="avatar"
                               className="w-6 h-6 rounded-full object-cover"
                             />
-                            <strong>{comment.User?.name || "Unknown"}:</strong>
+                            <strong>
+                              {comment.User?.name || "Unknown"}:
+                            </strong>
                             <span>{comment.comment}</span>
                           </div>
                           <div className="flex gap-2">
                             <FaTrash
                               className="text-red-400 hover:text-red-500 cursor-pointer"
-                              onClick={() => deleteComment(post.id, comment.id)}
+                              onClick={() =>
+                                deleteComment(post.id, comment.id)
+                              }
                             />
                           </div>
                         </li>
@@ -249,11 +269,27 @@ const ManageSuspiciousPosts = () => {
         </div>
       )}
 
-      <DeleteConfirmationDialog
+      {/* Material UI Delete Confirmation Dialog */}
+      <Dialog
         open={confirmDialogOpen}
-        handleClose={() => setConfirmDialogOpen(false)}
-        handleConfirm={handleConfirmDelete}
-      />
+        onClose={() => setConfirmDialogOpen(false)}
+      >
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this post? This action cannot be
+            undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDialogOpen(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDelete} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
