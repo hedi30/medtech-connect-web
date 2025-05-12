@@ -1,4 +1,3 @@
-// GroupChatDetails.js
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -11,11 +10,10 @@ import {
   ListItemText,
   Divider,
   CircularProgress,
-  Avatar,
 } from "@mui/material";
 
 const GroupChatDetails = () => {
-  const { groupId } = useParams(); // Extract the groupId from the URL
+  const { groupId } = useParams();
   const [chatDetails, setChatDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,12 +31,9 @@ const GroupChatDetails = () => {
           }
         );
 
-        // Find the specific chat by groupId
         const chats = Array.isArray(response.data)
           ? response.data
-          : response.data && Array.isArray(response.data.chatList)
-          ? response.data.chatList
-          : [];
+          : response.data?.chatList || [];
 
         const selectedChat = chats.find((chat) => chat.id === groupId);
 
@@ -56,19 +51,12 @@ const GroupChatDetails = () => {
       }
     };
 
-    if (groupId) {
-      fetchGroupChatDetails();
-    }
+    if (groupId) fetchGroupChatDetails();
   }, [groupId]);
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="300px"
-      >
+      <Box display="flex" justifyContent="center" alignItems="center" height="300px">
         <CircularProgress />
       </Box>
     );
@@ -93,39 +81,36 @@ const GroupChatDetails = () => {
   }
 
   return (
-    <Box>
-      <Typography variant="h4" mb={3}>
-        Group Chat Details
+    <Box sx={{ px: 2, pb: 4 }}>
+      <Typography variant="h4" mb={3} fontWeight="bold" color="#3881a5">
+        {chatDetails.groupName || "Unnamed Group"}
       </Typography>
 
-      <Paper elevation={3} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
-        <Typography variant="h5" color="primary" gutterBottom>
-          {chatDetails.groupName || "Unnamed Group"}
+      <Paper elevation={3} sx={{ p: 3, mb: 4, borderRadius: 2, backgroundColor: "#f9f9f9" }}>
+        <Typography variant="h6" gutterBottom fontWeight="medium" color="text.secondary">
+          Group Information
         </Typography>
 
-        <Typography variant="body1" sx={{ marginTop: 2 }}>
-          <strong>Group ID:</strong> {chatDetails.id}
-        </Typography>
-
-        {chatDetails.groupIdentifier && (
-          <Typography variant="body1">
-            <strong>Group Identifier:</strong> {chatDetails.groupIdentifier}
+        <Box sx={{ pl: 1 }}>
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            <strong>Group ID:</strong> {chatDetails.id}
           </Typography>
-        )}
-
-        <Typography variant="body1">
-          <strong>Created:</strong>{" "}
-          {new Date(chatDetails.createdAt).toLocaleString()}
-        </Typography>
-
-        <Typography variant="body1">
-          <strong>Last Updated:</strong>{" "}
-          {new Date(chatDetails.updatedAt).toLocaleString()}
-        </Typography>
+          {chatDetails.groupIdentifier && (
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              <strong>Group Identifier:</strong> {chatDetails.groupIdentifier}
+            </Typography>
+          )}
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            <strong>Created:</strong> {new Date(chatDetails.createdAt).toLocaleString()}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Last Updated:</strong> {new Date(chatDetails.updatedAt).toLocaleString()}
+          </Typography>
+        </Box>
       </Paper>
 
       <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h6" gutterBottom fontWeight="medium" color="text.secondary">
           Messages
         </Typography>
 
@@ -137,38 +122,27 @@ const GroupChatDetails = () => {
                   <ListItemText
                     primary={
                       <Box display="flex" justifyContent="space-between">
-                        <Typography
-                          component="span"
-                          variant="body1"
-                          fontWeight="bold"
-                        >
-                          {/* Show username instead of sender ID */}
-                          {message.sender && message.sender.userName
-                            ? message.sender.userName
-                            : "Unknown User"}
+                        <Typography component="span" fontWeight="bold">
+                          {message.sender?.userName || "Unknown User"}
                         </Typography>
-                        <Typography
-                          component="span"
-                          variant="caption"
-                          color="text.secondary"
-                        >
+                        <Typography component="span" variant="caption" color="text.secondary">
                           {new Date(message.createdAt).toLocaleString()}
                         </Typography>
                       </Box>
                     }
-                    secondary={message.text}
+                    secondary={
+                      <Typography component="span" variant="body2">
+                        {message.text}
+                      </Typography>
+                    }
                   />
                 </ListItem>
-                {index < chatDetails.messages.length - 1 && (
-                  <Divider component="li" />
-                )}
+                {index < chatDetails.messages.length - 1 && <Divider component="li" />}
               </React.Fragment>
             ))}
           </List>
         ) : (
-          <Typography variant="body1">
-            No messages in this group chat yet.
-          </Typography>
+          <Typography variant="body1">No messages in this group chat yet.</Typography>
         )}
       </Paper>
     </Box>
